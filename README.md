@@ -21,7 +21,7 @@ The `toit.test` executable will be installed in the same directory as the
 1. The first to do is to clone the repo: `git clone https://github.com/mikkeldamsgaard/pkg-test`
 2. `cd pkg-test`
 3. `toit.pkg install`
-3. `toit.run tool/install.toit`
+4. `toit.run tool/install.toit`
 
 ## Usage
 When the `toit.test` executable is installed, it can be invoked from 
@@ -71,3 +71,9 @@ test_load_input:
 (For this test to complete with `Ok` a file with content `Hello World!` should be 
 placed in `input/hello_world.txt`)
 
+## Real example
+The pkg-slip package uses this test framework. To see it in action:
+1. `git clone https://github.com/mikkeldamsgaard/pkg-slip`
+2. `cd pkg-slip`
+3. `toit.pkg install`
+4. `toit.test -r .`
