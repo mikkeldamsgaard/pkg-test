@@ -80,6 +80,10 @@ expect_equals expected/any actual/any message/string?=null:
   if expected != actual:
     fail "Expected $expected got $actual$(message?", $message":"")"
 
+expect_null actual/any message/string?=null:
+  if actual != null:
+    fail "Expected null got $actual$(message?", $message":"")"
+
 expect_true value/bool message/string?=null:
   if not value:
     fail (message?message:"")
@@ -122,22 +126,22 @@ class NoOutputTestPrinter_ implements TestPrinter_:
     return (List (right_justification - label.size) ".").join ""
 
 install_services_:
-  (LogServiceDefinition).install
-  (PrintServiceDefinition).install
+  (LogServiceProvider).install
+  (PrintServiceProvider).install
 
-class PrintServiceDefinition extends services.ServiceDefinition:
+class PrintServiceProvider extends services.ServiceProvider implements services.ServiceHandler:
   constructor:
-    super "" --major=PrintService.MAJOR --minor=PrintService.MINOR
-    provides PrintService.UUID PrintService.MAJOR PrintService.MINOR
+    super "" --major=1 --minor=0
+    provides PrintService.SELECTOR --handler=this
 
   handle pid/int client/int index/int arguments/any -> any:
     // Ignore everything
     return null
 
-class LogServiceDefinition extends services.ServiceDefinition:
+class LogServiceProvider extends services.ServiceProvider implements services.ServiceHandler:
   constructor:
-    super "" --major=LogService.MAJOR --minor=LogService.MINOR
-    provides LogService.UUID LogService.MAJOR LogService.MINOR
+    super "" --major=1 --minor=0
+    provides LogService.SELECTOR --handler=this
 
   handle pid/int client/int index/int arguments/any -> any:
     // Ignore everything
