@@ -3,6 +3,7 @@ import cli
 import system.api.log show LogService
 import system.api.print show PrintService
 import system.services
+import log.target
 
 test_cases_ ::= {:}
 
@@ -23,7 +24,10 @@ run args/List:
                        uses either of these, this flag should be set to not install the
                        test systems services
                        """
-                     --short_name="o"
+                     --short_name="o",
+                  cli.OptionString "prefix"
+                     --short_help="Prefix to add to all output lines"
+                     --short_name="p"
                      ]
       --rest=[cli.Option "test_cases" --multi
                   --short_help="List of test cases to run"]
@@ -32,7 +36,6 @@ run args/List:
   root.run args
 
 run_ parsed/cli.Parsed:
-
   cases/List := parsed["test-cases"]
   tests/Map := ?
   if cases.is_empty:
@@ -44,24 +47,25 @@ run_ parsed/cli.Parsed:
     print "No tests specified"
     exit 1
 
+  install_services_
+
   do_case_output := parsed["output"]
   test_reporter/TestPrinter_ := ?
   if do_case_output:
+    if parsed["prefix"]: print_prefix_ = parsed["prefix"]
     test_reporter = OutputTestPrinter_
+    do_output_ = true
   else:
-    test_reporter = NoOutputTestPrinter_
-    install_services_
+    test_reporter = NoOutputTestPrinter_ parsed["prefix"]
 
   max_key := tests.keys.reduce --initial=0: |p k/string| max p k.size
 
   any_failed/bool := false
   tests.do: | k v |
     test_reporter.print_start max_key k
-    e :=
-      catch
-          --trace=(: not it is TestFailure_)
-          --unwind=(: not it is TestFailure_):
-        v.call
+    should_trace := : not it is TestFailure_
+    e := catch --trace=should_trace --unwind=should_trace:
+      v.call
 
     if not e:
       test_reporter.print_success
@@ -113,8 +117,12 @@ class OutputTestPrinter_ implements TestPrinter_:
   print_failure message/string: print "Test failed: $message"
 
 class NoOutputTestPrinter_ implements TestPrinter_:
+  prefix_/string := ""
+  constructor prefix:
+    if prefix: prefix_ = prefix
+
   print_start max_length/int name/string:
-    write_on_stdout_ "Running test $name $(pad_dots_ (max_length + 3) name) " false
+    write_on_stdout_ "$(prefix_)Running test $name $(pad_dots_ (max_length + 3) name) " false
 
   print_success:
     write_on_stdout_ "Ok" true
@@ -125,24 +133,36 @@ class NoOutputTestPrinter_ implements TestPrinter_:
   pad_dots_ right_justification label/string -> string:
     return (List (right_justification - label.size) ".").join ""
 
+services_installed_/bool := false
 install_services_:
-  (LogServiceProvider).install
-  (PrintServiceProvider).install
+  if not services_installed_:
+    (LogServiceProvider).install
+    (PrintServiceProvider).install
+    services_installed_ = true
 
+do_output_/bool := false
+print_prefix_ := ""
 class PrintServiceProvider extends services.ServiceProvider implements services.ServiceHandler:
   constructor:
     super "" --major=1 --minor=0
     provides PrintService.SELECTOR --handler=this
 
   handle pid/int client/int index/int arguments/any -> any:
-    // Ignore everything
+    if do_output_: write_on_stdout_ "$(print_prefix_)$arguments" true
     return null
 
 class LogServiceProvider extends services.ServiceProvider implements services.ServiceHandler:
+  delegate/LogService := target.StandardLogService_
   constructor:
     super "" --major=1 --minor=0
     provides LogService.SELECTOR --handler=this
 
   handle pid/int client/int index/int arguments/any -> any:
-    // Ignore everything
+    if do_output_:
+      level/int := arguments[0]
+      message/string := arguments[1]
+      names/List? := arguments[2]
+      keys/List? := arguments[3]
+      values/List? := arguments[4]
+      delegate.log level message names keys values
     return null
