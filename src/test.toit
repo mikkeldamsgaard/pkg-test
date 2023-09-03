@@ -147,7 +147,7 @@ class PrintServiceProvider extends services.ServiceProvider implements services.
     super "" --major=1 --minor=0
     provides PrintService.SELECTOR --handler=this
 
-  handle pid/int client/int index/int arguments/any -> any:
+  handle index/int arguments/any --gid/int --client/int -> any:
     if do_output_: write_on_stdout_ "$(print_prefix_)$arguments" true
     return null
 
@@ -157,7 +157,7 @@ class LogServiceProvider extends services.ServiceProvider implements services.Se
     super "" --major=1 --minor=0
     provides LogService.SELECTOR --handler=this
 
-  handle pid/int client/int index/int arguments/any -> any:
+  handle index/int arguments/any --gid/int --client/int -> any:
     if do_output_:
       level/int := arguments[0]
       message/string := arguments[1]

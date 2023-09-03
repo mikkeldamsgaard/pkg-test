@@ -22,7 +22,7 @@ main:
 
   cloned := false
   if not file.is_directory "toit":
-    pipe.backticks ["git", "clone", "--branch", "v2.0.0-alpha.54", "--depth", "1", "https://github.com/toitlang/toit.git"]
+    pipe.backticks ["git", "clone", "--branch", "v2.0.0-alpha.82", "--depth", "1", "https://github.com/toitlang/toit.git"]
     cloned = true
 
   pipe.backticks [toitc, "-o", concat_dirs install_dir "toit.test", "test_runner.toit"]

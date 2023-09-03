@@ -35,7 +35,7 @@ simple form, it takes as input a Toit source file, looks for all methods in
 that file that start with `test_` and executes them.
 
 The tool can recursively search for files that should be inspected for 
-test methods. The convention is that it will looks for all Toit files (`'*.toit`) in 
+test methods. The convention is that it will looks for all Toit files (`'*.toit`) 
 that has `tests` in it path. That way, if the project has a directory named
 `tests` then it is assumed that all `.toit` files below that directory will
 be test files and should be inspected for test methods.
