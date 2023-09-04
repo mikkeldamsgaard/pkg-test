@@ -149,7 +149,7 @@ class PrintServiceProvider extends services.ServiceProvider implements services.
 
   handle index/int arguments/any --gid/int --client/int -> any:
     if do_output_:
-      if arguments[0] == 0:
+      if arguments.size > 0 and arguments[0] == 0:
         write_on_stdout_ "$(print_prefix_)$arguments[1..]" true
       else:
         write_on_stdout_ "$(print_prefix_)  >> $arguments" true

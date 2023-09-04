@@ -116,8 +116,8 @@ run_ parsed/cli.Parsed:
       out_stream.write "  test.run args\n"
       out_stream.close
       do_output_ = true
-      if not first: print ""
-      print "Running tests from $test_file:"
+      if not first: print "\0"
+      print "\0Running tests from $test_file:"
       arguments := ["toit.run", out_file_name, "-p", "  "]
 
       if parsed["test_cases"].size > 0: arguments.add_all parsed["test_cases"]
