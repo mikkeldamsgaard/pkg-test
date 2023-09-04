@@ -118,7 +118,7 @@ run_ parsed/cli.Parsed:
       do_output_ = true
       if not first: print ""
       print "Running tests from $test_file:"
-      arguments := ["toit.run", out_file_name,"-p","  "]
+      arguments := ["toit.run", out_file_name, "-p", "  "]
 
       if parsed["test_cases"].size > 0: arguments.add_all parsed["test_cases"]
       if parsed["output"]: arguments.add "-o"

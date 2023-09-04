@@ -112,9 +112,9 @@ interface TestPrinter_:
   print_failure message/string
 
 class OutputTestPrinter_ implements TestPrinter_:
-  print_start max_length/int name/string: print "Starting test for $name"
-  print_success: print "Test successful"
-  print_failure message/string: print "Test failed: $message"
+  print_start max_length/int name/string: print "\0Starting test for $name"
+  print_success: print "\0Test successful"
+  print_failure message/string: print "\0Test failed: $message"
 
 class NoOutputTestPrinter_ implements TestPrinter_:
   prefix_/string := ""
@@ -148,8 +148,14 @@ class PrintServiceProvider extends services.ServiceProvider implements services.
     provides PrintService.SELECTOR --handler=this
 
   handle index/int arguments/any --gid/int --client/int -> any:
-    if do_output_: write_on_stdout_ "$(print_prefix_)$arguments" true
+    if do_output_:
+      if arguments[0] == 0:
+        write_on_stdout_ "$(print_prefix_)$arguments[1..]" true
+      else:
+        write_on_stdout_ "$(print_prefix_)  >> $arguments" true
+
     return null
+
 
 class LogServiceProvider extends services.ServiceProvider implements services.ServiceHandler:
   delegate/LogService := target.StandardLogService_
