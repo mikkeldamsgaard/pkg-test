@@ -124,7 +124,9 @@ run_ parsed/cli.Parsed:
       if parsed["output"]: arguments.add "-o"
 
       pipe_result := pipe.fork true pipe.PIPE_INHERITED pipe.PIPE_INHERITED pipe.PIPE_INHERITED arguments[0] arguments
+      print_ "!\$>> Waitfor"
       exit_code := pipe.exit_code (pipe.wait_for pipe_result[3])
+      print_ "!\$>> Waitfor.done"
       failed += exit_code != 0 ? 1 : 0
       first = false
   exit failed
