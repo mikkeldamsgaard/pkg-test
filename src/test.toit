@@ -75,6 +75,7 @@ run_ parsed/cli.Parsed:
     else:
       unreachable
 
+  print_ "!\$>>> Exiting test program: any_failed: $any_failed"
   if any_failed: exit 1
   else: exit 0
 
