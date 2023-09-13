@@ -125,8 +125,13 @@ run_ parsed/cli.Parsed:
 
       pipe_result := pipe.fork true pipe.PIPE_INHERITED pipe.PIPE_INHERITED pipe.PIPE_INHERITED arguments[0] arguments
       print_ "!\$>> Waitfor"
-      exit_code := pipe.exit_code (pipe.wait_for pipe_result[3])
-      print_ "!\$>> Waitfor.done"
-      failed += exit_code != 0 ? 1 : 0
+      e := catch --trace=(: it != DEADLINE_EXCEEDED_ERROR):
+        with_timeout --ms=30000:
+          exit_code := pipe.exit_code (pipe.wait_for pipe_result[3])
+          print_ "!\$>> Waitfor.done"
+          failed += exit_code != 0 ? 1 : 0
+      if e:
+        print "\0Timeout"
+        failed += 1
       first = false
   exit failed
