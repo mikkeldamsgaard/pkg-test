@@ -44,14 +44,14 @@ be test files and should be inspected for test methods.
 A simple test of a fictional method `sum`
 
 ```toit
-import ../sum.toit
+import ..sum.toit
 import test
 
 test_one_plus_one:
-  test.expect_equals 2 (sum 1 1)
+  test.expect-equals 2 (sum 1 1)
   
 test_one_plus_two:
-  test.expect_equals 3 (sum 1 2) 
+  test.expect-equals 3 (sum 1 2) 
 ```
 
 ## Input support
@@ -64,12 +64,12 @@ import test.input
 import test
 
 test_load_input:
-  hello := input.as_string "hello_world.txt"
-  test.expect_equals "Hello World!" hello
+  hello := input.as-string "hello-world.txt"
+  test.expect-equals "Hello World!" hello
 ```
 
 (For this test to complete with `Ok` a file with content `Hello World!` should be 
-placed in `input/hello_world.txt`)
+placed in `input/hello-world.txt`)
 
 ## Real example
 The pkg-slip package uses this test framework. To see it in action:

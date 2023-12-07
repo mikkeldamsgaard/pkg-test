@@ -5,18 +5,18 @@ import system.api.print show PrintService
 import system.services
 import log.target
 
-test_cases_ ::= {:}
+test-cases_ ::= {:}
 
-add_test name/string test/Lambda:
-  test_cases_[name]=test
+add-test name/string test/Lambda:
+  test-cases_[name]=test
 
 run args/List:
   root := cli.Command "root"
-      --long_help="""
+      --long-help="""
         Run tests defined by a test file.
         """
       --options=[cli.Flag "output" --default=false
-                     --short_help="""
+                     --short-help="""
                        Toggle output from test cases.
 
                        By default this is off and the test system installs a logger service
@@ -24,13 +24,13 @@ run args/List:
                        uses either of these, this flag should be set to not install the
                        test systems services
                        """
-                     --short_name="o",
+                     --short-name="o",
                   cli.OptionString "prefix"
-                     --short_help="Prefix to add to all output lines"
-                     --short_name="p"
+                     --short-help="Prefix to add to all output lines"
+                     --short-name="p"
                      ]
       --rest=[cli.Option "test_cases" --multi
-                  --short_help="List of test cases to run"]
+                  --short-help="List of test cases to run"]
       --run=:: run_ it
 
   root.run args
@@ -38,122 +38,121 @@ run args/List:
 run_ parsed/cli.Parsed:
   cases/List := parsed["test-cases"]
   tests/Map := ?
-  if cases.is_empty:
-    tests = test_cases_
+  if cases.is-empty:
+    tests = test-cases_
   else:
-    tests = test_cases_.filter: |k v| cases.contains k
+    tests = test-cases_.filter: |k v| cases.contains k
 
-  if tests.is_empty:
+  if tests.is-empty:
     print "No tests specified"
     exit 1
 
-  install_services_
+  install-services_
 
-  do_case_output := parsed["output"]
-  test_reporter/TestPrinter_ := ?
-  if do_case_output:
-    if parsed["prefix"]: print_prefix_ = parsed["prefix"]
-    test_reporter = OutputTestPrinter_
-    do_output_ = true
+  do-case-output := parsed["output"]
+  test-reporter/TestPrinter_ := ?
+  if do-case-output:
+    if parsed["prefix"]: print-prefix_ = parsed["prefix"]
+    test-reporter = OutputTestPrinter_
+    do-output_ = true
   else:
-    test_reporter = NoOutputTestPrinter_ parsed["prefix"]
+    test-reporter = NoOutputTestPrinter_ parsed["prefix"]
 
-  max_key := tests.keys.reduce --initial=0: |p k/string| max p k.size
+  max-key := tests.keys.reduce --initial=0: |p k/string| max p k.size
 
-  any_failed/bool := false
+  any-failed/bool := false
   tests.do: | k v |
-    test_reporter.print_start max_key k
-    should_trace := : not it is TestFailure_
-    e := catch --trace=should_trace --unwind=should_trace:
+    test-reporter.print-start max-key k
+    should-trace := : not it is TestFailure_
+    e := catch --trace=should-trace --unwind=should-trace:
       v.call
 
     if not e:
-      test_reporter.print_success
+      test-reporter.print-success
     else if e is TestFailure_:
-      any_failed = true
-      test_reporter.print_failure e.message
+      any-failed = true
+      test-reporter.print-failure e.message
     else:
       unreachable
 
-  print_ "!\$>>> Exiting test program: any_failed: $any_failed"
-  if any_failed: exit 1
+  if any-failed: exit 1
   else: exit 0
 
 fail message/string: throw (TestFailure_ message)
 
-expect_equals expected/any actual/any message/string?=null:
+expect-equals expected/any actual/any message/string?=null:
   if expected != actual:
     fail "Expected $expected got $actual$(message?", $message":"")"
 
-expect_null actual/any message/string?=null:
+expect-null actual/any message/string?=null:
   if actual != null:
     fail "Expected null got $actual$(message?", $message":"")"
 
-expect_true value/bool message/string?=null:
+expect-true value/bool message/string?=null:
   if not value:
     fail (message?message:"")
 
-expect_false value/bool message/string?=null:
+expect-false value/bool message/string?=null:
   if value:
     fail (message?message:"")
 
-expect_exception --exception_value=null [block]:
+expect-exception --exception-value=null [block]:
   e := catch: block.call
   if not e: fail "No exception thrown"
-  if exception_value == null: return
-  fail "Wrong exception was thrown. Expected $exception_value and got $e"
+  if exception-value == null: return
+  fail "Wrong exception was thrown. Expected $exception-value and got $e"
 
 class TestFailure_:
   message/string
   constructor .message:
 
 interface TestPrinter_:
-  print_start max_length/int name/string
-  print_success
-  print_failure message/string
+  print-start max-length/int name/string
+  print-success
+  print-failure message/string
 
 class OutputTestPrinter_ implements TestPrinter_:
-  print_start max_length/int name/string: print "\0Starting test for $name"
-  print_success: print "\0Test successful"
-  print_failure message/string: print "\0Test failed: $message"
+  print-start max-length/int name/string: print "\0Starting test for $name"
+  print-success: print "\0Test successful"
+  print-failure message/string: print "\0Test failed: $message"
 
 class NoOutputTestPrinter_ implements TestPrinter_:
   prefix_/string := ""
   constructor prefix:
     if prefix: prefix_ = prefix
 
-  print_start max_length/int name/string:
-    write_on_stdout_ "$(prefix_)Running test $name $(pad_dots_ (max_length + 3) name) " false
+  print-start max-length/int name/string:
+    write-on-stdout_ "$(prefix_)Running test $name $(pad-dots_ (max-length + 3) name) " false
 
-  print_success:
-    write_on_stdout_ "Ok" true
+  print-success:
+    write-on-stdout_ "Ok" true
 
-  print_failure message/string:
-    write_on_stdout_ "Failed: $message" true
+  print-failure message/string:
+    write-on-stdout_ "Failed: $message" true
 
-  pad_dots_ right_justification label/string -> string:
-    return (List (right_justification - label.size) ".").join ""
+  pad-dots_ right-justification label/string -> string:
+    return (List (right-justification - label.size) ".").join ""
 
-services_installed_/bool := false
-install_services_:
-  if not services_installed_:
+services-installed_/bool := false
+install-services_:
+  if not services-installed_:
     (LogServiceProvider).install
     (PrintServiceProvider).install
-    services_installed_ = true
+    services-installed_ = true
 
-do_output_/bool := false
-print_prefix_ := ""
+do-output_/bool := false
+print-prefix_ := ""
 class PrintServiceProvider extends services.ServiceProvider implements services.ServiceHandler:
   constructor:
     super "" --major=1 --minor=0
     provides PrintService.SELECTOR --handler=this
 
   handle index/int arguments/any --gid/int --client/int -> any:
-    if do_output_:
+    if do-output_:
       if arguments.size > 0 and arguments[0] == 0:
-        write_on_stdout_ "$(print_prefix_)$arguments[1..]" true
+        write-on-stdout_ "$(print-prefix_)$arguments[1..]" true
       else:
-        write_on_stdout_ "$(print_prefix_)  >> $arguments" true
+        write-on-stdout_ "$(print-prefix_)  >> $arguments" true
 
     return null
 
@@ -165,7 +164,7 @@ class LogServiceProvider extends services.ServiceProvider implements services.Se
     provides LogService.SELECTOR --handler=this
 
   handle index/int arguments/any --gid/int --client/int -> any:
-    if do_output_:
+    if do-output_:
       level/int := arguments[0]
       message/string := arguments[1]
       names/List? := arguments[2]

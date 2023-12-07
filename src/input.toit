@@ -1,13 +1,13 @@
 import host.file
 
-resolve_input_file_name data_name/string -> string:
-  return "input/$data_name"
+resolve-input-file-name data-name/string -> string:
+  return "input/$data-name"
 
-as_byte_array data_name/string -> ByteArray:
-  return file.read_content (resolve_input_file_name data_name)
+as-byte-array data-name/string -> ByteArray:
+  return file.read-content (resolve-input-file-name data-name)
 
-as_string --throwing/bool=false data_name/string -> string:
+as-string --throwing/bool=false data-name/string -> string:
   if throwing:
-    return (as_byte_array data_name).to_string
+    return (as-byte-array data-name).to-string
   else:
-    return (as_byte_array data_name).to_string_non_throwing
+    return (as-byte-array data-name).to-string-non-throwing

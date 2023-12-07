@@ -1,4 +1,7 @@
 name: test
+description: Test framework for Toit, focusing on host-base unit tests.
+environment:
+  sdk: ^2.0.0-alpha.120
 dependencies:
   cli:
     url: github.com/toitlang/pkg-cli
